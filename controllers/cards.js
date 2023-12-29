@@ -8,7 +8,6 @@ module.exports.addCard = (req, res) => {
         .populate('owner')
         .then((data) => res.send(data))
         .catch(() => res.status(404).send({ message: 'Пользователь по указанному _id не найден' }));
-    
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -21,9 +20,9 @@ module.exports.addCard = (req, res) => {
 
 module.exports.getCards = (req, res) => {
   Card.find({})
-        .populate(['owner', 'likes'])
-        .then((cards) => res.send(cards))
-        .catch(() => res.status(500).send({ message: 'На сервере произошла ошибка' }));
+    .populate(['owner', 'likes'])
+    .then((cards) => res.send(cards))
+    .catch(() => res.status(500).send({ message: 'На сервере произошла ошибка' }));
 };
 
 module.exports.deleteCard = (req, res) => {
@@ -44,8 +43,8 @@ module.exports.deleteCard = (req, res) => {
 
 module.exports.likeCard = (req, res) => {
   if (req.params.cardId.length === 24) {
-    Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user._id } }, { new: true})
-    .populate(['owner', 'likes'])
+    Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user._id } }, { new: true })
+      .populate(['owner', 'likes'])
       .then((card) => {
         if (!card) {
           res.status(404).send({ message: 'Карточка с указанным _id не найдена' });
@@ -58,12 +57,11 @@ module.exports.likeCard = (req, res) => {
     res.status(400).send({ message: 'Некорректный _id карточки' });
   }
 };
-
 
 module.exports.dislikeCard = (req, res) => {
   if (req.params.cardId.length === 24) {
-    Card.findByIdAndUpdate(req.params.cardId, { $pull: { likes: req.user._id } }, { new: true})
-    .populate(['owner', 'likes'])
+    Card.findByIdAndUpdate(req.params.cardId, { $pull: { likes: req.user._id } }, { new: true })
+      .populate(['owner', 'likes'])
       .then((card) => {
         if (!card) {
           res.status(404).send({ message: 'Карточка с указанным _id не найдена' });
@@ -76,4 +74,3 @@ module.exports.dislikeCard = (req, res) => {
     res.status(400).send({ message: 'Некорректный _id карточки' });
   }
 };
-
