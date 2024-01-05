@@ -14,7 +14,9 @@ const cardSchema = new mongoose.Schema(
       required: [true, 'Поле должно быть заполнено'],
       validate: {
         validator(v) {
-          return /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_+.~#?&/=]*)$/.test(v);
+          return /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_+.~#?&/=]*)$/.test(
+            v,
+          );
         },
         message: 'Введите URL',
       },
@@ -25,12 +27,17 @@ const cardSchema = new mongoose.Schema(
       ref: 'user',
       required: true,
     },
-    likes: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'user',
-      },
-    ],
+
+    likes: {
+      type: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'user',
+        },
+      ],
+      default: [],
+    },
+
     createdAt: {
       type: Date,
       default: Date.now,

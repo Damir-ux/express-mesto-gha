@@ -1,9 +1,8 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const bodyParser = require("body-parser");
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
 
-const { PORT = 3000, DB_URL = "mongodb://127.0.0.1:27017/testdb" } =
-  process.env;
+const { PORT = 3000, DB_URL = 'mongodb://127.0.0.1:27017/testdb' } = process.env;
 
 const app = express();
 app.use(bodyParser.json());
@@ -16,7 +15,7 @@ mongoose.connect(DB_URL, {
 
 app.use((req, res, next) => {
   req.user = {
-    _id: "659470616b7d180590710b90",
+    _id: '659470616b7d180590710b90',
   };
 
   next();
@@ -24,5 +23,5 @@ app.use((req, res, next) => {
 
 app.listen(PORT);
 
-app.use("/users", require("./routes/users"));
-app.use("/cards", require("./routes/cards"));
+app.use('/users', require('./routes/users'));
+app.use('/cards', require('./routes/cards'));
