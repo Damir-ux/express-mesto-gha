@@ -1,5 +1,5 @@
-const http2 = require('http2');
-const Card = require('../models/card');
+const http2 = require("http2");
+const Card = require("../models/card");
 
 const {
   HTTP_STATUS_OK,
@@ -13,52 +13,51 @@ module.exports.addCard = (req, res) => {
   Card.create({ name, link, owner: req.user._id })
     .then((card) => {
       Card.findById(card._id)
-        .populate('owner')
+        .populate("owner")
         .then((data) => res.status(HTTP_STATUS_OK).send(data))
-        .catch(() => res
-          .status(HTTP_STATUS_NOT_FOUND)
-          .send({ message: 'Пользователь по указанному _id не найден' }));
+        .catch(() =>
+          res
+            .status(HTTP_STATUS_NOT_FOUND)
+            .send({ message: "Пользователь по указанному _id не найден" })
+        );
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === "ValidationError") {
         res.status(HTTP_STATUS_BAD_REQUEST).send({ message: err.message });
       } else {
         res
           .status(HTTP_STATUS_INTERNAL_SERVER_ERROR)
-          .send({ message: 'На сервере произошла ошибка' });
+          .send({ message: "На сервере произошла ошибка" });
       }
     });
 };
 
 module.exports.getCards = (req, res) => {
   Card.find({})
-    .populate(['owner', 'likes'])
+    .populate(["owner", "likes"])
     .then((cards) => res.status(HTTP_STATUS_OK).send(cards))
-    .catch(() => res
-      .status(HTTP_STATUS_INTERNAL_SERVER_ERROR)
-      .send({ message: 'На сервере произошла ошибка' }));
+    .catch(() =>
+      res
+        .status(HTTP_STATUS_INTERNAL_SERVER_ERROR)
+        .send({ message: "На сервере произошла ошибка" })
+    );
 };
 
 module.exports.deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
-    .then((card) => {
-      if (!card) {
-        res
-          .status(HTTP_STATUS_NOT_FOUND)
-          .send({ message: 'Карточка с указанным _id не найдена' });
-        return;
-      }
-      res.send({ message: 'Карточка удалена' });
+    .orFail(new Error("DocumentNotFoundError"))
+    .then(() => {
+      res.send({ message: "Карточка удалена" });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err.name === "DocumentNotFoundError" || err.name === "CastError") {
         res
           .status(HTTP_STATUS_NOT_FOUND)
-          .send({ message: 'Карточка с указанным _id не найдена' });
+          .send({ message: "Карточка с указанным _id не найдена" });
       } else {
         res
           .status(HTTP_STATUS_INTERNAL_SERVER_ERROR)
-          .send({ message: 'На сервере произошла ошибка' });
+          .send({ message: "На сервере произошла ошибка" });
       }
     });
 };
@@ -67,27 +66,22 @@ module.exports.likeCard = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
-    { new: true },
+    { new: true }
   )
-    .populate(['owner', 'likes'])
+    .orFail(new Error("DocumentNotFoundError"))
+    .populate(["owner", "likes"])
     .then((card) => {
-      if (!card) {
-        res
-          .status(HTTP_STATUS_NOT_FOUND)
-          .send({ message: 'Карточка с указанным _id не найдена' });
-        return;
-      }
       res.send(card);
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err.name === "DocumentNotFoundError" || err.name === "CastError") {
         res
           .status(HTTP_STATUS_NOT_FOUND)
-          .send({ message: 'Карточка с указанным _id не найдена' });
+          .send({ message: "Карточка с указанным _id не найдена" });
       } else {
         res
           .status(HTTP_STATUS_INTERNAL_SERVER_ERROR)
-          .send({ message: 'На сервере произошла ошибка' });
+          .send({ message: "На сервере произошла ошибка" });
       }
     });
 };
@@ -96,27 +90,22 @@ module.exports.dislikeCard = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
-    { new: true },
+    { new: true }
   )
-    .populate(['owner', 'likes'])
+    .orFail(new Error("DocumentNotFoundError"))
+    .populate(["owner", "likes"])
     .then((card) => {
-      if (!card) {
-        res
-          .status(HTTP_STATUS_NOT_FOUND)
-          .send({ message: 'Карточка с указанным _id не найдена' });
-        return;
-      }
       res.send(card);
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err.name === "DocumentNotFoundError" || err.name === "CastError") {
         res
           .status(HTTP_STATUS_NOT_FOUND)
-          .send({ message: 'Карточка с указанным _id не найдена' });
+          .send({ message: "Карточка с указанным _id не найдена" });
       } else {
         res
           .status(HTTP_STATUS_INTERNAL_SERVER_ERROR)
-          .send({ message: 'На сервере произошла ошибка' });
+          .send({ message: "На сервере произошла ошибка" });
       }
     });
 };
