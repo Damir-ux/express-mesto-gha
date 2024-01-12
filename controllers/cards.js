@@ -1,6 +1,7 @@
 const http2 = require('http2');
-const Card = require('../models/card');
 const mongoose = require('mongoose');
+const Card = require('../models/card');
+const card = require('../models/card');
 
 const {
   HTTP_STATUS_OK,
@@ -49,25 +50,32 @@ module.exports.getCards = (req, res) => {
 };
 
 module.exports.deleteCard = (req, res) => {
-  Card.findByIdAndRemove(req.params.cardId)
-    .orFail()
-    .then(() => {
-      res.send({ message: 'Карточка удалена' });
-    })
-    .catch((err) => {
-      if (err instanceof mongoose.Error.DocumentNotFoundError) {
-        res
-          .status(HTTP_STATUS_NOT_FOUND)
-          .send({ message: 'Карточка не найдена' });
-      } else if (err instanceof mongoose.Error.CastError) {
-        res
-          .status(HTTP_STATUS_BAD_REQUEST)
-          .send({ message: 'Неправильный _id карточки' });
-      } else {
-        res
-          .status(HTTP_STATUS_INTERNAL_SERVER_ERROR)
-          .send({ message: 'На сервере произошла ошибка' });
+  Card.findByI(req.params.cardId)
+    .then((card) => {
+      if (!card.owner.equals(req.user._id)) {
+
       }
+
+      Card.deleteOne(card)
+        .orFail()
+        .then(() => {
+          res.send({ message: 'Карточка удалена' });
+        })
+        .catch((err) => {
+          if (err instanceof mongoose.Error.DocumentNotFoundError) {
+            res
+              .status(HTTP_STATUS_NOT_FOUND)
+              .send({ message: 'Карточка не найдена' });
+          } else if (err instanceof mongoose.Error.CastError) {
+            res
+              .status(HTTP_STATUS_BAD_REQUEST)
+              .send({ message: 'Неправильный _id карточки' });
+          } else {
+            res
+              .status(HTTP_STATUS_INTERNAL_SERVER_ERROR)
+              .send({ message: 'На сервере произошла ошибка' });
+          }
+        });
     });
 };
 
