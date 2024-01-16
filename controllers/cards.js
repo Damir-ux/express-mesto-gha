@@ -4,6 +4,7 @@ const Card = require('../models/card');
 // const card = require('../models/card');
 const BadRequestError = require('../errors/BadRequestError');
 const NotFoundError = require('../errors/NotFoundError');
+const ForbiddenError = require('../errors/ForbiddenError');
 
 const {
   HTTP_STATUS_OK,
@@ -46,7 +47,7 @@ module.exports.deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId)
     .then((card) => {
       if (!card.owner.equals(req.user._id)) {
-
+        throw new ForbiddenError('Нужна авторизация');
       }
 
       Card.deleteOne(card)
