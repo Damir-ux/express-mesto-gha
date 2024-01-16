@@ -11,8 +11,10 @@ router.use(auth);
 router.use('/users', usersRouter);
 router.use('/cards', cardsRouter);
 
-router.use((req, res) => {
-  res.status(404).json({ message: 'Страница не найдена' });
+router.use((req, res, next) => {
+  const error = new Error('Страница не найдена');
+  error.status = 404;
+  next(error);
 });
 
 module.exports = router;
